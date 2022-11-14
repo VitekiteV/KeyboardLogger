@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "LoggerFunctions.h"
 #include <Windows.h>
 #include <iostream>
@@ -6,6 +7,10 @@
 #include "Keyboard.h"
 #include "Button.h"
 #include <iomanip>
+#include <string>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 static std::array<int, 5> mouse_keys = { 0 };
 static Keyboard keyboard;
@@ -313,9 +318,14 @@ void ReadKeyboardReg()
 	std::cout << "\n==================\n";
 }
 
-void SaveStatistic()
+void SaveStatistic(std::tm* tm_struct)
 {
-	std::fstream file("statistic.txt", std::ios_base::out, std::ios_base::trunc);
+	const fs::path stat_dir("statistics");
+	if (!fs::exists(stat_dir))
+		fs::create_directory(stat_dir);
+
+	std::string file_name = "statistics/" + std::to_string(tm_struct->tm_mday) + "." + std::to_string(tm_struct->tm_mon+1) + "." + std::to_string(tm_struct->tm_year+1900) + ".txt";
+	std::fstream file(file_name, std::ios_base::out, std::ios_base::trunc);
 	file << "Mouse buttons:\n\nleft\t" << mouse_keys[0] << "\nright\t" << mouse_keys[1] <<
 		"\nback\t" << mouse_keys[2] << "\nforward\t" << mouse_keys[3] << "\nwheel\t" << mouse_keys[4] << "\n\n\n" <<
 		"Keyboard buttons:\n";
@@ -327,6 +337,10 @@ void SaveStatistic()
 
 void Menu(const DWORD& thread_id)
 {
+	std::time_t local_time = time(nullptr);
+	std::tm* tm_struct = localtime(&local_time);
+	//std::cout << tm_struct->tm_mday << " " << tm_struct->tm_mon + 1 << " " << tm_struct->tm_year + 1900 << "\n";
+
 	while (true)
 	{
 		std::cout << "==================\n";
@@ -344,7 +358,7 @@ void Menu(const DWORD& thread_id)
 		else if (val == 2)
 			ReadKeyboardReg();
 		else if (val == 3)
-			SaveStatistic();
+			SaveStatistic(tm_struct);
 	}
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <ctime>
 
 static HHOOK mouse_hook;
 static HHOOK keyboard_hook;
@@ -16,7 +17,7 @@ void ReadMouseReg();
 void SaveKeyboardKey(const int vk_code);
 void ReadKeyboardReg();
 
-void SaveStatistic();
+void SaveStatistic(std::tm* tm_struct);
 
 void Menu(const DWORD& thread_id);
 void MsgProc();
